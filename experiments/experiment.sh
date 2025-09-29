@@ -11,7 +11,10 @@
 #SBATCH --mem-per-cpu=2000
 #SBATCH --time=2-23:59:59
 
-conda activate one_policy_to_run_them_all
+eval "$(~/miniconda3/bin/conda shell.bash hook)"
+conda activate onep
+
+# export JAX_TRACEBACK_FILTERING="off"
 
 python experiment.py \
     --algorithm.name="uni_ppo.ppo" \
@@ -29,7 +32,7 @@ python experiment.py \
     --algorithm.evaluation_episodes=50 \
     --algorithm.evaluation_frequency=17233920 \
     --algorithm.save_latest_frequency=17233920 \
-    --algorithm.determine_fastest_cpu_for_gpu=True \
+    --algorithm.determine_fastest_cpu_for_gpu=False \
     --algorithm.device="gpu" \
     --environment.name="multi_robot" \
     --environment.nr_envs=48 \
@@ -41,7 +44,7 @@ python experiment.py \
     --runner.track_tb=True \
     --runner.track_wandb=True \
     --runner.save_model=True \
-    --runner.wandb_entity="placeholder" \
-    --runner.project_name="one_policy_to_run_them_all" \
-    --runner.exp_name="E0" \
-    --runner.notes=""
+    --runner.wandb_entity="keagan" \
+    --runner.project_name="ebt" \
+    --runner.exp_name="uni_ppo_E0" \
+    --runner.notes="Default params"
