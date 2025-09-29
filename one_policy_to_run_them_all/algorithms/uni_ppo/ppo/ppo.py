@@ -370,7 +370,7 @@ class PPO:
                         losses.append(loss)
                         metrics.append(metric)
                     loss_mean = jnp.mean(jnp.array(losses))
-                    metrics_mean = jax.tree_map(lambda *x: jnp.mean(jnp.array(x)), *metrics)
+                    metrics_mean = jax.tree.map(lambda *x: jnp.mean(jnp.array(x)), *metrics)
                     
                     return loss_mean, (metrics_mean)
 
@@ -615,8 +615,10 @@ class PPO:
                 self.start_logging(self.global_step)
                 for key, value in additional_metrics.items():
                     self.log(key, value, self.global_step)
-                for key, value in optimization_metrics.items():
-                    self.log(key, value, self.global_step)
+                # NOTE: at least one metric has its value is passed as a jax tracer, causing the code to fail. 
+                # TODO: fix data types for optimization metrics 
+                # for key, value in optimization_metrics.items():
+                #     self.log(key, value, self.global_step)
                 self.end_logging()
 
 
@@ -690,6 +692,7 @@ class PPO:
 
     def log(self, name, value, step):
         if self.track_tb:
+            # self.log_console(f"{name}", 0)
             self.writer.add_scalar(name, value, step)
         if self.track_console:
             self.log_console(name, value)
