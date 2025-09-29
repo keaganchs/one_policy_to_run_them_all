@@ -26,15 +26,15 @@ This repository provides the implementation for the paper:
 Default installation for a Linux system with a NVIDIA GPU.
 For other configurations, see the RL-X [documentation](https://nico-bohlinger.github.io/RL-X/#detailed-installation-guide).
 ```bash
-conda create -n one_policy_to_run_them_all python=3.11.4
-conda activate one_policy_to_run_them_all
+conda create -n onep python=3.11.4
+conda activate onep
 git clone git@github.com:nico-bohlinger/RL-X.git
 cd RL-X
-git checkout 70e220ac7eaf7b14ff4e0660227185a4628791b4
+git checkout 6604e393843ad6ada043ae95b60f707b28a5a6e9
 pip install -e .[all] --config-settings editable_mode=compat
 pip uninstall $(pip freeze | grep -i '\-cu12' | cut -d '=' -f 1) -y
-pip install "torch==2.2.1" --index-url https://download.pytorch.org/whl/cu118 --upgrade
-pip install -U "jax[cuda12_pip]==0.4.25" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+pip install "torch==2.10.0.dev20250928+cu130" --index-url  https://download.pytorch.org/whl/cu130 --upgrade
+pip install -U "jax[cuda13]==0.7.2" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 ```
 
 2. Install the project
