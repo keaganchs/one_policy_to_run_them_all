@@ -143,8 +143,8 @@ class UnitreeG1(gym.Env):
             self.multi_robot_max_observation_size = multi_robot_max_observation_size
             self.missing_nr_of_actions = multi_robot_max_action_size - action_space_size
             action_space_size = multi_robot_max_action_size
-        action_space_low = -np.ones(action_space_size) * np.Inf
-        action_space_high = np.ones(action_space_size) * np.Inf
+        action_space_low = -np.ones(action_space_size) * np.inf
+        action_space_high = np.ones(action_space_size) * np.inf
         self.action_space = gym.spaces.Box(low=action_space_low, high=action_space_high, dtype=np.float32)
 
         self.foot_names = ["left_foot", "right_foot"]
