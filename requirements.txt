@@ -23,7 +23,7 @@ dm-env==1.6
 dm-tree==0.1.8
 docker-pycreds==0.4.0
 envpool==0.8.4
-etils==1.6.0
+etils==1.13.0
 Farama-Notifications==0.0.4
 filelock==3.19.1
 flatbuffers==25.9.23
@@ -124,7 +124,7 @@ nvidia-nvtx-cu11==11.8.86
 nvidia-nvtx-cu12==12.6.77
 nvidia-nvvm==13.0.88
 oauthlib==3.2.2
--e git+https://github.com/keaganchs/one_policy_to_run_them_all.git@51f3558b7fb8381c1b3e15f5648be18637ed580f#egg=one_policy_to_run_them_all
+-e git+https://github.com/keaganchs/one_policy_to_run_them_all.git@b36a8e57f1162974b5927fcbd2a4702bf761e10c#egg=one_policy_to_run_them_all
 opencv-python==4.12.0.88
 opt-einsum==3.3.0
 optax==0.2.6
@@ -140,7 +140,7 @@ pyasn1==0.5.1
 pyasn1-modules==0.3.0
 pycparser @ file:///home/task_175749606196006/conda-bld/pycparser_1757496076770/work
 pydantic==1.10.24
-pygame==2.5.2
+pygame==2.6.1
 Pygments==2.17.2
 PyOpenGL==3.1.7
 pyparsing==3.1.1
