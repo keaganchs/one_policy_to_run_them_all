@@ -9,7 +9,6 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 from flax.training.train_state import TrainState
-from flax.training import orbax_utils
 import orbax.checkpoint
 import optax
 import wandb
@@ -209,8 +208,9 @@ class PPO:
             self.best_eps_track_perf_perc_average = 0.0
             self.best_model_file_name = "model_best_jax"
             self.latest_model_file_name = "model_latest_jax"
-            best_model_check_point_handler = orbax.checkpoint.PyTreeCheckpointHandler(aggregate_filename=self.best_model_file_name)
-            latest_model_check_point_handler = orbax.checkpoint.PyTreeCheckpointHandler(aggregate_filename=self.latest_model_file_name)
+            # Use standard PyTreeCheckpointHandler for newer Orbax versions
+            best_model_check_point_handler = orbax.checkpoint.PyTreeCheckpointHandler()
+            latest_model_check_point_handler = orbax.checkpoint.PyTreeCheckpointHandler()
             self.best_model_checkpointer = orbax.checkpoint.Checkpointer(best_model_check_point_handler)
             self.latest_model_checkpointer = orbax.checkpoint.Checkpointer(latest_model_check_point_handler)
 
@@ -718,23 +718,25 @@ class PPO:
             "policy": policy_state,
             "critic": critic_state
         }
-        save_args = orbax_utils.save_args_from_target(checkpoint)
+        # Note: save_args is no longer needed in modern Orbax versions
+        
         if type == "best":
-            self.best_model_checkpointer.save(f"{self.save_path}/tmp", checkpoint, save_args=save_args)
-            os.rename(f"{self.save_path}/tmp/{self.best_model_file_name}", f"{self.save_path}/{self.best_model_file_name}")
-            os.remove(f"{self.save_path}/tmp/_METADATA")
-            os.rmdir(f"{self.save_path}/tmp")
-
+            # Save directly to the final location (Orbax saves to directories, not files)
+            best_path = f"{self.save_path}/{self.best_model_file_name}"
+            self.best_model_checkpointer.save(best_path, checkpoint, force=True)
+            
             if self.track_wandb:
-                wandb.save(f"{self.save_path}/{self.best_model_file_name}", base_path=self.save_path)
+                # Orbax checkpoints are directories - use glob pattern to save all files
+                wandb.save(os.path.join(best_path, "*"), base_path=self.save_path, policy="now")
+                
         elif type == "latest":
-            self.latest_model_checkpointer.save(f"{self.save_path}/tmp", checkpoint, save_args=save_args)
-            os.rename(f"{self.save_path}/tmp/{self.latest_model_file_name}", f"{self.save_path}/{self.latest_model_file_name}")
-            os.remove(f"{self.save_path}/tmp/_METADATA")
-            os.rmdir(f"{self.save_path}/tmp")
-
+            # Save directly to the final location (Orbax saves to directories, not files)
+            latest_path = f"{self.save_path}/{self.latest_model_file_name}"
+            self.latest_model_checkpointer.save(latest_path, checkpoint, force=True)
+            
             if self.track_wandb:
-                wandb.save(f"{self.save_path}/{self.latest_model_file_name}", base_path=self.save_path)
+                # Orbax checkpoints are directories - use glob pattern to save all files
+                wandb.save(os.path.join(latest_path, "*"), base_path=self.save_path, policy="now")
 
 
     def load(config, env, run_path, writer, explicitly_set_algorithm_params):
@@ -742,10 +744,13 @@ class PPO:
         checkpoint_dir = "/".join(splitted_path[:-1])
         checkpoint_file_name = splitted_path[-1]
 
-        check_point_handler = orbax.checkpoint.PyTreeCheckpointHandler(aggregate_filename=checkpoint_file_name)
+        # Use standard PyTreeCheckpointHandler for newer Orbax versions
+        check_point_handler = orbax.checkpoint.PyTreeCheckpointHandler()
         checkpointer = orbax.checkpoint.Checkpointer(check_point_handler)
 
-        loaded_algorithm_config = checkpointer.restore(checkpoint_dir)["config_algorithm"]
+        # Construct the full path to the checkpoint
+        checkpoint_path = f"{checkpoint_dir}/{checkpoint_file_name}"
+        loaded_algorithm_config = checkpointer.restore(checkpoint_path)["config_algorithm"]
         for key, value in loaded_algorithm_config.items():
             if f"algorithm.{key}" not in explicitly_set_algorithm_params:
                 config.algorithm[key] = value
@@ -756,7 +761,7 @@ class PPO:
             "policy": model.policy_state,
             "critic": model.critic_state
         }
-        checkpoint = checkpointer.restore(checkpoint_dir, item=target)
+        checkpoint = checkpointer.restore(checkpoint_path, item=target)
 
         model.policy_state = checkpoint["policy"]
         model.critic_state = checkpoint["critic"]

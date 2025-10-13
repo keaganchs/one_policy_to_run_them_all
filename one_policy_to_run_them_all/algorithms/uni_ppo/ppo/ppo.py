@@ -9,7 +9,6 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 from flax.training.train_state import TrainState
-from flax.training import orbax_utils
 import orbax.checkpoint
 import optax
 import wandb
@@ -722,23 +721,25 @@ class PPO:
             "policy": policy_state,
             "critic": critic_state
         }
-        save_args = orbax_utils.save_args_from_target(checkpoint)
+        # Note: save_args is no longer needed in modern Orbax versions
         
         if type == "best":
-            # Save directly to the final location instead of using tmp directory
+            # Save directly to the final location (Orbax saves to directories, not files)
             best_path = f"{self.save_path}/{self.best_model_file_name}"
-            self.best_model_checkpointer.save(best_path, checkpoint, save_args=save_args, force=True)
+            self.best_model_checkpointer.save(best_path, checkpoint, force=True)
             
             if self.track_wandb:
-                wandb.save(best_path, base_path=self.save_path)
+                # Orbax checkpoints are directories - use glob pattern to save all files
+                wandb.save(os.path.join(best_path, "*"), base_path=self.save_path, policy="now")
                 
         elif type == "latest":
-            # Save directly to the final location instead of using tmp directory
+            # Save directly to the final location (Orbax saves to directories, not files)
             latest_path = f"{self.save_path}/{self.latest_model_file_name}"
-            self.latest_model_checkpointer.save(latest_path, checkpoint, save_args=save_args, force=True)
+            self.latest_model_checkpointer.save(latest_path, checkpoint, force=True)
             
             if self.track_wandb:
-                wandb.save(latest_path, base_path=self.save_path)
+                # Orbax checkpoints are directories - use glob pattern to save all files
+                wandb.save(os.path.join(latest_path, "*"), base_path=self.save_path, policy="now")
 
 
     def load(config, env, run_path, writer, explicitly_set_algorithm_params):
