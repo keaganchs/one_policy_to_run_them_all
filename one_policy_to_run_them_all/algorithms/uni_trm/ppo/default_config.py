@@ -33,14 +33,13 @@ def get_config(algorithm_name):
     config.save_latest_frequency = 204800
     config.determine_fastest_cpu_for_gpu = False
 
-    # EBT-specific configuration
-    config.ebt_dim = 256  # Transformer hidden dimension
-    config.ebt_n_layers = 4  # Number of transformer layers
-    config.ebt_n_heads = 8  # Number of attention heads
-    config.ebt_max_seq_len = 64  # Maximum sequence length for state history
-    config.ebt_dropout = 0.1  # Dropout rate
-    config.ebt_use_energy_attention = True  # Use energy-based attention mechanism
-    config.ebt_energy_scale = 1.0  # Scale factor for energy computation
-    config.ebt_state_embedding_dim = 128  # State embedding dimension
+    # TRM specific config
+    config.trm_hidden_size = 256
+    config.trm_expansion = 2.0
+    config.trm_num_heads = 4
+    config.trm_mlp_t = False
+    config.trm_h_cycles = 2
+    config.trm_l_cycles = 2
+    config.trm_max_seq_len = 64
 
     return config

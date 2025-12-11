@@ -5,11 +5,15 @@ def get_config(environment_name):
     config = config_dict.ConfigDict()
 
     config.name = environment_name
+    config.train_robot_types = ["talos"]
+    config.eval_robot_types = ["talos"]
 
     config.nr_envs = 1
+    config.nr_eval_envs = 1
 
     config.seed = 1
     config.render = False
+    config.multi_render = False
     config.mode = "train"
     config.control_type = "rudin2022"
     config.command_type = "random"
@@ -21,6 +25,8 @@ def get_config(environment_name):
     config.domain_randomization_action_delay_type = "none"
     config.domain_randomization_mujoco_model_type = "none"
     config.domain_randomization_control_type = "none"
+    config.domain_randomization_seen_robot_type = "none"
+    config.domain_randomization_unseen_robot_type = "none"
     config.domain_randomization_perturbation_type = "none"
     config.domain_randomization_perturbation_sampling_type = "none"
     config.observation_noise_type = "none"

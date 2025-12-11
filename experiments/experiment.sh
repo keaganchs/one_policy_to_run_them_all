@@ -42,7 +42,7 @@ python experiment.py \
     --runner.mode="train" \
     --runner.track_console=False \
     --runner.track_tb=True \
-    --runner.track_wandb=True \
+    --runner.track_wandb=False \
     --runner.save_model=True \
     --runner.wandb_entity="keagan" \
     --runner.project_name="ebt" \

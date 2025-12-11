@@ -28,6 +28,10 @@ class Talos(gym.Env):
     LONG_NAME = "talos"
     SHORT_NAME = "tl"
 
+    @property
+    def robot_type(self):
+        return 0
+
     def __init__(self, seed, render,
                  mode,
                  control_type, command_type, command_sampling_type, initial_state_type,
@@ -35,6 +39,7 @@ class Talos(gym.Env):
                  domain_randomization_sampling_type,
                  domain_randomization_action_delay_type,
                  domain_randomization_mujoco_model_type,
+                 domain_randomization_control_type, # TODO: 
                  domain_randomization_seen_robot_type, domain_randomization_unseen_robot_type,
                  domain_randomization_perturbation_type, domain_randomization_perturbation_sampling_type,
                  observation_noise_type, observation_dropout_type, terrain_type,
@@ -98,6 +103,8 @@ class Talos(gym.Env):
         self.domain_randomization_sampling_function = get_sampling_function(domain_randomization_sampling_type, self)
         self.domain_randomization_action_delay_function = get_get_domain_randomization_action_delay_function(domain_randomization_action_delay_type, self)
         self.domain_randomization_mujoco_model_function = get_domain_randomization_mujoco_model_function(domain_randomization_mujoco_model_type, self)
+        self.domain_randomization_control_type = domain_randomization_control_type
+
         self.domain_randomization_seen_robot_function = get_domain_randomization_seen_robot_function(domain_randomization_seen_robot_type, self)
         self.domain_randomization_unseen_robot_function = get_domain_randomization_unseen_robot_function(domain_randomization_unseen_robot_type, self)
         self.domain_randomization_perturbation_function = get_domain_randomization_perturbation_function(domain_randomization_perturbation_type, self)

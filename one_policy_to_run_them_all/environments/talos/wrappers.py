@@ -53,4 +53,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         if done:
             info["episode_return"] = self.episode_return
             info["episode_length"] = self.episode_length
+            if hasattr(self.env, "robot_type"):
+                info[f"episode_return_{self.env.robot_type}"] = self.episode_return
+                info[f"episode_length_{self.env.robot_type}"] = self.episode_length
         return (observation, reward, termination, truncation, info)

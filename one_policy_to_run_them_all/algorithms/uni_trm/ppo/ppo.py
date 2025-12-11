@@ -13,9 +13,9 @@ import orbax.checkpoint
 import optax
 import wandb
 
-from one_policy_to_run_them_all.algorithms.ebt_ppo.ppo.general_properties import GeneralProperties
-from one_policy_to_run_them_all.algorithms.ebt_ppo.ppo.policy import get_policy
-from one_policy_to_run_them_all.algorithms.ebt_ppo.ppo.critic import get_critic
+from one_policy_to_run_them_all.algorithms.uni_trm.ppo.general_properties import GeneralProperties
+from one_policy_to_run_them_all.algorithms.uni_trm.ppo.policy import get_policy
+from one_policy_to_run_them_all.algorithms.uni_trm.ppo.critic import get_critic
 
 rlx_logger = logging.getLogger("rl_x")
 
@@ -204,7 +204,7 @@ class PPO:
         )
 
         if self.save_model:
-            os.makedirs(self.save_path)
+            os.makedirs(self.save_path, exist_ok=True)
             self.best_eps_track_perf_perc_average = 0.0
             self.best_model_file_name = "model_best_jax"
             self.latest_model_file_name = "model_latest_jax"
@@ -370,7 +370,7 @@ class PPO:
                         losses.append(loss)
                         metrics.append(metric)
                     loss_mean = jnp.mean(jnp.array(losses))
-                    metrics_mean = jax.tree_map(lambda *x: jnp.mean(jnp.array(x)), *metrics)
+                    metrics_mean = jax.tree.map(lambda *x: jnp.mean(jnp.array(x)), *metrics)
                     
                     return loss_mean, (metrics_mean)
 
@@ -425,10 +425,10 @@ class PPO:
                 mean_metrics = {key: jnp.mean(metrics[key]) for key in metrics}
                 mean_metrics["lr/learning_rate"] = policy_state.opt_state[1].hyperparams["learning_rate"]
                 mean_metrics["v_value/explained_variance"] = 1 - jnp.var(returns - values) / (jnp.var(returns) + 1e-8)
-                mean_metrics["policy/joint_softmax_temp"] = jnp.exp(policy_state.params["params"]["joint_log_softmax_temperature"])[0] + self.softmax_temperature_min
-                mean_metrics["policy/foot_softmax_temp"] = jnp.exp(policy_state.params["params"]["foot_log_softmax_temperature"])[0] + self.softmax_temperature_min
-                mean_metrics["critic/joint_softmax_temp"] = jnp.exp(critic_state.params["params"]["joint_log_softmax_temperature"])[0] + self.softmax_temperature_min
-                mean_metrics["critic/foot_softmax_temp"] = jnp.exp(critic_state.params["params"]["foot_log_softmax_temperature"])[0] + self.softmax_temperature_min
+                # mean_metrics["policy/joint_softmax_temp"] = jnp.exp(policy_state.params["params"]["joint_log_softmax_temperature"])[0] + self.softmax_temperature_min
+                # mean_metrics["policy/foot_softmax_temp"] = jnp.exp(policy_state.params["params"]["foot_log_softmax_temperature"])[0] + self.softmax_temperature_min
+                # mean_metrics["critic/joint_softmax_temp"] = jnp.exp(critic_state.params["params"]["joint_log_softmax_temperature"])[0] + self.softmax_temperature_min
+                # mean_metrics["critic/foot_softmax_temp"] = jnp.exp(critic_state.params["params"]["foot_log_softmax_temperature"])[0] + self.softmax_temperature_min
 
                 return policy_state, critic_state, mean_metrics, key
             
@@ -615,8 +615,10 @@ class PPO:
                 self.start_logging(self.global_step)
                 for key, value in additional_metrics.items():
                     self.log(key, value, self.global_step)
-                for key, value in optimization_metrics.items():
-                    self.log(key, value, self.global_step)
+                # NOTE: at least one metric has its value is passed as a jax tracer, causing the code to fail. 
+                # TODO: fix data types for optimization metrics 
+                # for key, value in optimization_metrics.items():
+                #     self.log(key, value, self.global_step)
                 self.end_logging()
 
 
@@ -690,6 +692,7 @@ class PPO:
 
     def log(self, name, value, step):
         if self.track_tb:
+            # self.log_console(f"{name}", 0)
             self.writer.add_scalar(name, value, step)
         if self.track_console:
             self.log_console(name, value)
