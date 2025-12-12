@@ -30,7 +30,7 @@ class Talos(gym.Env):
 
     @property
     def robot_type(self):
-        return 0
+        return self.SHORT_NAME
 
     def __init__(self, seed, render,
                  mode,

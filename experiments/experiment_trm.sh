@@ -17,7 +17,7 @@ conda activate onep
 # export JAX_TRACEBACK_FILTERING="off"
 
 python experiment.py \
-    --algorithm.name="uni_ppo.ppo" \
+    --algorithm.name="uni_trm.ppo" \
     --algorithm.total_timesteps=100000000 \
     --algorithm.nr_steps=500 \
     --algorithm.minibatch_size=250 \
@@ -34,6 +34,13 @@ python experiment.py \
     --algorithm.save_latest_frequency=400000 \
     --algorithm.determine_fastest_cpu_for_gpu=True \
     --algorithm.device="gpu" \
+    --algorithm.trm_hidden_size=64 \
+    --algorithm.trm_expansion=2.0 \
+    --algorithm.trm_num_heads=4 \
+    --algorithm.trm_mlp_t=True \
+    --algorithm.trm_h_cycles=2 \
+    --algorithm.trm_l_cycles=2 \
+    --algorithm.trm_max_seq_len=64 \
     --environment.name="talos" \
     --environment.nr_envs=20 \
     --environment.seed=0 \

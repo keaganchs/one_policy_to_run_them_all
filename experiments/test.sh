@@ -1,12 +1,12 @@
 python experiment.py \
     --algorithm.name=uni_ppo.ppo \
-    --environment.name="multi_robot" \
+    --environment.name="talos" \
     --runner.track_console=True \
-    --runner.load_model=pre_trained_model \
+    --runner.load_model=/home/holmes/projects/thesis/ebt/one_policy_to_run_them_all/experiments/pre_trained_model \
     --algorithm.determine_fastest_cpu_for_gpu=False \
     --runner.mode=test \
     --environment.mode=test \
     --environment.add_goal_arrow=True \
-    --environment.nr_envs=16 \
-    --environment.multi_render=True \
-    --environment.render=False
+    --environment.nr_envs=1 \
+    --environment.multi_render=False \
+    --environment.render=True

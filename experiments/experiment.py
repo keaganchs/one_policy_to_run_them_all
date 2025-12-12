@@ -3,11 +3,11 @@ import sys
 
 if __name__ == "__main__":
 
-    sys.argv.extend([
+    sys.argv[1:1] = [
         "--algorithm.name=uni_trm.ppo",
         "--algorithm.total_timesteps=100000000",
-        "--algorithm.nr_steps=128",
-        "--algorithm.minibatch_size=64",
+        "--algorithm.nr_steps=20000",
+        "--algorithm.minibatch_size=10000",
         "--algorithm.nr_epochs=10",
         "--algorithm.start_learning_rate=0.0004",
         "--algorithm.end_learning_rate=0.0",
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         "--runner.project_name=trm",
         "--runner.exp_name=uni_trm_E0", # EXP
         "--runner.notes=Default params" # NOTES
-    ])
+    ]
 
     runner = Runner(implementation_package_names=["rl_x", "one_policy_to_run_them_all"])
     runner.run()

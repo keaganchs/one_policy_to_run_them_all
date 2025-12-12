@@ -63,14 +63,14 @@ class PPO:
         self.nr_eval_env_types = len(config.environment.eval_robot_types)
 
         if self.evaluation_frequency % (self.nr_steps * self.nr_envs) != 0 and self.evaluation_frequency != -1:
-            raise ValueError("Evaluation frequency must be a multiple of the number of steps and environments.")
+            raise ValueError("Evaluation frequency must be a multiple of the number of steps and environments. Eval: {}, Steps: {}, Envs: {}".format(self.evaluation_frequency, self.nr_steps, self.nr_envs))
         
         if self.save_latest_frequency % (self.nr_steps * self.nr_envs) != 0 and self.save_model:
-            raise ValueError("Save latest frequency must be a multiple of the number of steps and environments.")
+            raise ValueError("Save latest frequency must be a multiple of the number of steps and environments. Save Latest: {}, Steps: {}, Envs: {}".format(self.save_latest_frequency, self.nr_steps, self.nr_envs))
 
         rlx_logger.info(f"Using device: {jax.default_backend()}")
 
-        if self.determine_fastest_cpu_for_gpu and self.env.fastest_cpu_id is not None:
+        if self.determine_fastest_cpu_for_gpu and getattr(self.env, "fastest_cpu_id", None) is not None:
             p = psutil.Process()
             p.cpu_affinity([self.env.fastest_cpu_id,])
             rlx_logger.info(f"Using fastest CPU for GPU connection: {self.env.fastest_cpu_id}")
@@ -516,7 +516,7 @@ class PPO:
                         for eval_key, eval_info_value in self.eval_env.get_logging_info_dict(eval_info).items():
                             if "track_perf_perc" in eval_key:
                                 name = eval_key.replace("env_info", "eval")
-                                self.evaluation_metrics[name].extend(eval_info_value)
+                                self.evaluation_metrics.setdefault(name, []).extend(eval_info_value)
                         eval_done = eval_terminated | eval_truncated
                         for i, eval_single_done in enumerate(eval_done):
                             if eval_single_done:
