@@ -70,10 +70,11 @@ class PPO:
 
         rlx_logger.info(f"Using device: {jax.default_backend()}")
 
-        if self.determine_fastest_cpu_for_gpu and self.env.fastest_cpu_id is not None:
+        fastest_cpu_id = getattr(self.env, "fastest_cpu_id", None)
+        if self.determine_fastest_cpu_for_gpu and fastest_cpu_id is not None:
             p = psutil.Process()
-            p.cpu_affinity([self.env.fastest_cpu_id,])
-            rlx_logger.info(f"Using fastest CPU for GPU connection: {self.env.fastest_cpu_id}")
+            p.cpu_affinity([fastest_cpu_id,])
+            rlx_logger.info(f"Using fastest CPU for GPU connection: {fastest_cpu_id}")
         
         self.key = jax.random.PRNGKey(self.seed)
         self.key, policy_key, critic_key = jax.random.split(self.key, 3)

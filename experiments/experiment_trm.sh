@@ -37,13 +37,13 @@ python experiment.py \
     --algorithm.trm_hidden_size=64 \
     --algorithm.trm_expansion=2.0 \
     --algorithm.trm_num_heads=4 \
-    --algorithm.trm_mlp_t=True \
+    --algorithm.trm_mlp_t=False \
     --algorithm.trm_h_cycles=2 \
     --algorithm.trm_l_cycles=2 \
     --algorithm.trm_max_seq_len=64 \
     --environment.name="talos" \
     --environment.nr_envs=20 \
-    --environment.seed=0 \
+    --environment.seed=42 \
     --runner.mode="train" \
     --runner.track_console=False \
     --runner.track_tb=True \
@@ -51,5 +51,5 @@ python experiment.py \
     --runner.save_model=True \
     --runner.wandb_entity="keagan" \
     --runner.project_name="trm_talos" \
-    --runner.exp_name="trm_talos_PPO_BASELINE" \
-    --runner.notes="Default params"
+    --runner.exp_name="trm_talos_E3_att" \
+    --runner.notes="Seed 42, attention-based TRM"

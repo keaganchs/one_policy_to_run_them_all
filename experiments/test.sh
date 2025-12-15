@@ -4,7 +4,7 @@ eval "$(~/miniconda3/bin/conda shell.bash hook)"
 conda activate onep
 
 python experiment.py \
-    --algorithm.name=uni_trm.ppo \
+    --algorithm.name=uni_ppo.ppo \
     --environment.name="talos" \
     --runner.track_console=True \
     --algorithm.nr_steps=500 \
@@ -14,7 +14,7 @@ python experiment.py \
     --algorithm.save_latest_frequency=-1 \
     --runner.save_model=False \
     --runner.mode=test \
-    --runner.load_model=/home/holmes/projects/thesis/ebt/one_policy_to_run_them_all/experiments/runs/trm_talos/trm_talos_E0/1765542203/models/model_best_jax \
+    --runner.load_model=/home/holmes/projects/thesis/ebt/one_policy_to_run_them_all/experiments/runs/trm_talos/trm_talos_PPO_BASELINE/1765546648/models/model_best_jax \
     --algorithm.determine_fastest_cpu_for_gpu=False \
     --environment.mode=test \
     --environment.add_goal_arrow=True \

@@ -44,5 +44,5 @@ python experiment.py \
     --runner.save_model=True \
     --runner.wandb_entity="keagan" \
     --runner.project_name="trm_talos" \
-    --runner.exp_name="trm_talos_PPO_BASELINE" \
-    --runner.notes="Default params"
+    --runner.exp_name="trm_talos_PPO_BASELINE_E0" \
+    --runner.notes="Same params as TRM models"

@@ -30,34 +30,24 @@ class TRMBlock(nn.Module):
         
         residual = x
         
-        # Time mixing
+        # MLP mixing over time
         if self.mlp_t:
             # MLP over sequence dimension
-            # x: (..., Seq, Hidden) -> (..., Hidden, Seq)
+            # x: (..., Seq, Hidden) -> (..., Hidden, Seq) -> MLP --> (..., Seq, Hidden)
             y = jnp.swapaxes(x, -1, -2)
-            # We need to handle padding if seq_len > actual_len?
-            # The MLP weights are fixed size (seq_len).
-            # We assume x is already padded to seq_len.
             y = SwiGLU(hidden_size=self.seq_len, expansion=self.expansion)(y)
             y = jnp.swapaxes(y, -1, -2)
-            # Apply mask to zero out padding contributions?
-            # If we pad with zeros, and MLP has bias, it might generate non-zeros.
-            # But usually we just ignore the output at padding positions.
+
+            # Mask padded entires
             if mask is not None:
                  y = y * mask[..., None]
             x = nn.RMSNorm()(residual + y)
+
+        # Attention mixing over features
         else:
-            # Attention
-            # Flax SelfAttention expects (..., Seq, Hidden)
             # mask needs to be (..., 1, Seq, Seq) or similar for attention bias.
-            # nn.make_attention_mask can help.
             attn_mask = None
             if mask is not None:
-                # Create (..., 1, 1, Seq) mask for broadcasting?
-                # Flax expects mask shape broadcastable to (..., Heads, Seq, Seq).
-                # If we want to mask out padding tokens from being attended TO:
-                # mask is (..., Seq).
-                # We want (..., 1, 1, Seq).
                 attn_mask = nn.make_attention_mask(mask > 0, mask > 0, dtype=jnp.float32)
             
             y = nn.SelfAttention(num_heads=self.num_heads)(x, mask=attn_mask)

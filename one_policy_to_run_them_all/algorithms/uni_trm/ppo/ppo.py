@@ -2,6 +2,7 @@ import os
 import psutil
 import logging
 import time
+import dataclasses
 from collections import deque
 import tree
 from functools import partial
@@ -9,6 +10,7 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 from flax.training.train_state import TrainState
+from flax.training import orbax_utils
 import orbax.checkpoint
 import optax
 import wandb
@@ -753,19 +755,44 @@ class PPO:
 
         # Construct the full path to the checkpoint
         checkpoint_path = f"{checkpoint_dir}/{checkpoint_file_name}"
-        loaded_algorithm_config = checkpointer.restore(checkpoint_path)["config_algorithm"]
-        for key, value in loaded_algorithm_config.items():
-            if f"algorithm.{key}" not in explicitly_set_algorithm_params:
-                config.algorithm[key] = value
+        
+        
         model = PPO(config, env, run_path, writer)
-
+        
         target = {
             "config_algorithm": config.algorithm.to_dict(),
             "policy": model.policy_state,
             "critic": model.critic_state
         }
-        checkpoint = checkpointer.restore(checkpoint_path, item=target)
+        
+        # Create sharding
+        sharding = jax.sharding.SingleDeviceSharding(jax.devices()[0])
+        
+        def set_sharding(arg):
+            if isinstance(arg, orbax.checkpoint.ArrayRestoreArgs):
+                return dataclasses.replace(arg, sharding=sharding)
+            return arg
 
+        restore_args = orbax_utils.restore_args_from_target(target, mesh=None)
+        restore_args = jax.tree_util.tree_map(set_sharding, restore_args)
+        
+        try:
+            checkpoint = checkpointer.restore(checkpoint_path, item=target, restore_args=restore_args)
+        except ValueError as e:
+            # If shape mismatch, we might be able to extract config from the error message or partial restore?
+            # Or maybe we can try to restore ONLY config if we provide a dummy target for policy/critic that matches structure?
+            # But we don't know structure.
+            raise e
+
+        loaded_algorithm_config = checkpoint["config_algorithm"]
+        for key, value in loaded_algorithm_config.items():
+             if f"algorithm.{key}" not in explicitly_set_algorithm_params:
+                config.algorithm[key] = value
+        
+        # Re-initialize model with correct config
+        model = PPO(config, env, run_path, writer)
+        
+        # Assign the loaded states to the new model
         model.policy_state = checkpoint["policy"]
         model.critic_state = checkpoint["critic"]
 
